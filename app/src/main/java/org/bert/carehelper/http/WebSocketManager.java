@@ -56,7 +56,7 @@ public class WebSocketManager {
     }
 
     private void setStatus(WsStatus status) {
-        
+
     }
 
     private static class WsListener extends WebSocketAdapter {
