@@ -1,6 +1,7 @@
 package org.bert.carehelper;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -11,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.telephony.TelephonyManager;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
@@ -41,18 +43,12 @@ public class MainActivity extends AppCompatActivity {
 
         this.getWriteAndReadPermission();
 
-
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        binding.fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
     }
 
     @Override
@@ -81,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private void getWriteAndReadPermission() {
         String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
         int PERMISSION_CODE = 123;
-
         if (Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP) {
             if (ActivityCompat.checkSelfPermission(MainActivity.this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

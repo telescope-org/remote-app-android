@@ -18,6 +18,8 @@ public class WebSocketManager {
 
     private volatile static WebSocketManager wsManger;
 
+    private WsStatus socketState = null;
+
     private WebSocket ws;
 
     private WebSocketManager() {
@@ -40,7 +42,7 @@ public class WebSocketManager {
         //WEB_SOCKET_API 是连接的url地址，
         // CONNECT_TIMEOUT是连接的超时时间 这里是 5秒
         try {
-            ws = new WebSocketFactory().createSocket("", 9999)
+            ws = new WebSocketFactory().createSocket("127.0.0.1", 9999)
                     //设置帧队列最大值为5
                     .setFrameQueueSize(5)
                     //设置不允许服务端关闭连接却未发送关闭帧
@@ -56,7 +58,11 @@ public class WebSocketManager {
     }
 
     private void setStatus(WsStatus status) {
+        this.socketState = status;
+    }
 
+    public WsStatus getStatus() {
+        return this.socketState;
     }
 
     private static class WsListener extends WebSocketAdapter {

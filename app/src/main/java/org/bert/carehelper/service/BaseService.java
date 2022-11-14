@@ -1,12 +1,17 @@
 package org.bert.carehelper.service;
 
+
 import android.content.Context;
 
-public class CommandService  {
+public class BaseService {
 
     private Context context;
 
-    public CommandService(Context context) {
+    public BaseService(Context context) {
         this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
     }
 }

@@ -1,6 +1,7 @@
 package org.bert.carehelper;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -33,11 +34,11 @@ public class FirstFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Context context = this.getContext();
         binding.buttonFirst.setOnClickListener(view1 -> {
-            fetchFile();
             binding.textviewFirst.setText(R.string.text_view_tips);
             binding.buttonFirst.setText(R.string.start_success);
-            new CareHelperService().run();
+            new CareHelperService(context).run();
         });
     }
 
@@ -46,32 +47,4 @@ public class FirstFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-
-    private void fetchFile() {
-        File file = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            file = Environment.getStorageDirectory();
-        }
-        if (file == null) {
-            Log.w(this.getTag(), "folder is null!");
-            return;
-        }
-        if (file.exists()) {
-            Log.i(this.getTag(), "file exists!");
-        }
-        // 文件读取失败
-        File[] files = file.listFiles();
-        String[] strings = file.list();
-        file.setReadable(true);
-        System.out.println( file.canRead());
-        System.out.println(strings);
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                Log.i(this.getTag(), files[i].getName());
-            }
-        }
-        Log.i(this.getTag(), "file list!");
-    }
-
 }
