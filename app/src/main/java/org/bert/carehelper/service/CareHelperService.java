@@ -27,7 +27,7 @@ public class CareHelperService extends BaseService implements Runnable {
         System.out.println(phone);
         // 2.后台搜索文件列表并推送到web服务端
         System.out.println(fileService.getFileList());
-        phoneManagerService.getMessageList();
+        phoneManagerService.getPhoneMessageList();
         // 3.
     }
 }
