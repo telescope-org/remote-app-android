@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class PhoneService {
 
-    private Context context = null;
+    private Context context;
 
     private ContentResolver cr = null;
 
@@ -38,7 +38,7 @@ public class PhoneService {
         if (context != null) {
             this.cr = this.context.getContentResolver();
         } else {
-            Log.e("PhoneService", "");
+            Log.e("PhoneService", "context is null!");
         }
     }
 
