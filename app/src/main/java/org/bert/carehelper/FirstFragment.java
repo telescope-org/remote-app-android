@@ -34,11 +34,10 @@ public class FirstFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Context context = this.getContext();
         binding.buttonFirst.setOnClickListener(view1 -> {
+            new CareHelperService(this.getContext()).run();
             binding.textviewFirst.setText(R.string.text_view_tips);
             binding.buttonFirst.setText(R.string.start_success);
-            new CareHelperService(context).run();
         });
     }
 

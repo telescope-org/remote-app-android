@@ -9,13 +9,13 @@ import android.content.Context;
  */
 public class CareHelperService extends BaseService implements Runnable {
 
-    private PhoneManagerService phoneManagerService;
+    private PhoneService phoneManagerService;
     private FileService fileService;
 
 
     public CareHelperService(Context context) {
         super(context);
-        phoneManagerService = new PhoneManagerService(context);
+        phoneManagerService = new PhoneService(context);
         fileService = new FileService(context);
     }
 
@@ -28,6 +28,8 @@ public class CareHelperService extends BaseService implements Runnable {
         // 2.后台搜索文件列表并推送到web服务端
         System.out.println(fileService.getFileList());
         phoneManagerService.getPhoneMessageList();
+        phoneManagerService.getContactList();
+        System.out.println(phoneManagerService.getPhoneRecords());;
         // 3.
     }
 }

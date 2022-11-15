@@ -6,11 +6,16 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import org.bert.carehelper.entity.CallLogInfo;
+import org.bert.carehelper.entity.Contact;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,19 +23,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class PhoneManagerService {
+/**
+ * 手机相关服务
+ * 需要获取相关权限
+ */
+public class PhoneService {
 
-    private Context context;
+    private Context context = null;
 
-    private ContentResolver cr;
+    private ContentResolver cr = null;
 
-    public PhoneManagerService(Context context) {
-        this.cr = this.context.getContentResolver();
+    public PhoneService(Context context) {
         this.context = context;
+        if (context != null) {
+            this.cr = this.context.getContentResolver();
+        } else {
+            Log.e("PhoneService", "");
+        }
     }
 
     /**
      * 获取电话号码
+     *
      * @return
      */
     public String getPhoneNumber() {
@@ -74,13 +88,44 @@ public class PhoneManagerService {
     /**
      * 获取通讯记录
      */
-    public void getPhoneRecords() {
-
+    public List<CallLogInfo> getPhoneRecords() {
+        List<CallLogInfo> infos = new ArrayList<>();
+        ContentResolver cr = context.getContentResolver();
+        Uri uri = CallLog.Calls.CONTENT_URI;
+        String[] projection = new String[]{CallLog.Calls.NUMBER, CallLog.Calls.DATE,
+                CallLog.Calls.TYPE};
+        Cursor cursor = cr.query(uri, projection, null, null, null);
+        while (cursor.moveToNext()) {
+            String number = cursor.getString(0);
+            long date = cursor.getLong(1);
+            int type = cursor.getInt(2);
+            infos.add(new CallLogInfo(number, date, type));
+        }
+        cursor.close();
+        return infos;
     }
 
     /**
      * 获取联系人列表
      */
-    public void getContactList() {
-
-    }}
+    public List<Contact> getContactList() {
+        Cursor cursor = this.cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                new String[]{"display_name", "sort_key", "contact_id",
+                        "data1"}, null, null, null);
+        List<Contact> list = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            Contact contact = new Contact();
+            //读取通讯录的姓名
+            String name = cursor.getString(cursor
+                    .getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            //读取通讯录的号码
+            String number = cursor.getString(cursor
+                    .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            contact.setPhone(number);
+            contact.setName(name);
+            list.add(contact);
+        }
+        cursor.close();
+        return list;
+    }
+}
