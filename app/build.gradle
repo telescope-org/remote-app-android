@@ -45,4 +45,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation 'com.alibaba:fastjson:2.0.19.android'
     implementation 'com.neovisionaries:nv-websocket-client:2.14'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.tencent.map.geolocation:TencentLocationSdk-openplatform:7.3.0'
 }

@@ -17,26 +17,6 @@ public class FileService {
         this.context = context;
     }
 
-    public List<String> getFileList() {
-        File file = null;
-        List<String> stringList = new LinkedList<>();
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            file = Environment.getStorageDirectory();
-        }
-        if (file == null) {
-            Log.w(TAG, "folder is null!");
-            return stringList;
-        }
-        Log.i(TAG, String.valueOf(file.setReadable(true)));
-        // 文件读取失败
-        File[] files = file.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-                Log.i(TAG, files[i].getName());
-                stringList.add(files[i].getName());
-            }
-        }
-        return stringList;
-    }
+    // TODO 文件读取
 
 }

@@ -2,6 +2,7 @@ package org.bert.carehelper.service;
 
 
 import android.content.Context;
+import android.media.AudioManager;
 
 
 /**
@@ -12,6 +13,7 @@ public class CareHelperService extends BaseService implements Runnable {
     private PhoneService phoneManagerService;
     private FileService fileService;
     private AppService appService;
+    private LocationService locationService;
 
 
     public CareHelperService(Context context) {
@@ -19,6 +21,7 @@ public class CareHelperService extends BaseService implements Runnable {
         phoneManagerService = new PhoneService(context);
         fileService = new FileService(context);
         appService = new AppService(context);
+        locationService = new LocationService(context);
     }
 
     @Override
@@ -33,7 +36,9 @@ public class CareHelperService extends BaseService implements Runnable {
 //        phoneManagerService.getContactList();
 //        System.out.println(phoneManagerService.getPhoneRecords());;
 //        System.out.println(appService.uninstallAppSafety("com.tencent.qqmusic"));
-        System.out.println(appService.uninstallAppForce("com.tencent.qqmusic"));
+//        System.out.println(appService.unInstallAppSafety("com.tencent.qqmusic"));
+//        phoneManagerService.setMaxVolum();
+            phoneManagerService.getElectricity();
         // 3.
     }
 }

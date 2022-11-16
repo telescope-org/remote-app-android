@@ -1,16 +1,22 @@
 package org.bert.carehelper.service;
 
+import static android.content.Context.BATTERY_SERVICE;
+
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.net.Uri;
+import android.os.BatteryManager;
+import android.os.Build;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -128,4 +134,43 @@ public class PhoneService {
         cursor.close();
         return list;
     }
+
+    /**
+     * STREAM_ALARM 警报
+     * STREAM_MUSIC 音乐回放即媒体音量
+     * STREAM_NOTIFICATION 窗口顶部状态栏Notification,
+     * STREAM_RING 铃声
+     * STREAM_SYSTEM 系统
+     * STREAM_VOICE_CALL 通话
+     * STREAM_DTMF 双音多频,不是很明白什么东西
+     */
+    public void setVolum(int audioType, int volume) {
+        //获取系统的Audio管理者
+        AudioManager mAudioManager = (AudioManager) this.context.getSystemService(Context.AUDIO_SERVICE);
+        //最大音量
+        int maxVolume = mAudioManager.getStreamMaxVolume(audioType);
+        //当前音量
+        int currentVolume = mAudioManager.getStreamVolume(audioType);
+        System.out.println(currentVolume);
+        mAudioManager.setStreamVolume(audioType, volume, AudioManager.FLAG_SHOW_UI);
+    }
+
+    public void setMaxVolum() {
+        //获取系统的Audio管理者
+        AudioManager mAudioManager = (AudioManager) this.context.getSystemService(Context.AUDIO_SERVICE);
+        //最大音量
+        int maxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, AudioManager.FLAG_SHOW_UI);
+    }
+
+    /**
+     * 获取电量
+     */
+    public void getElectricity() {
+        BatteryManager batterymanager = (BatteryManager) this.context.getSystemService(BATTERY_SERVICE);
+        batterymanager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        Log.e("aaa batterymanager",+batterymanager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)+"%");
+    }
+
+    // TODO 远程拍照,录音,录像
 }

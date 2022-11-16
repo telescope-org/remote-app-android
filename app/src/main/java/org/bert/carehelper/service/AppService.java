@@ -43,17 +43,16 @@ public class AppService {
         return packages;
     }
 
-    public boolean uninstallAppSafety(String packageName) {
+    public boolean unInstallAppSafety(String packageName) {
         Uri uri = Uri.fromParts("package", packageName, null);
         Intent intent = new Intent(Intent.ACTION_DELETE, uri);
         this.context.startActivity(intent);
         return true;
     }
 
-    public boolean uninstallAppForce(String packageName) {
+    public boolean unInstallAppForce(String packageName) {
         // 静默卸载
         return true;
     }
-
 
 }
