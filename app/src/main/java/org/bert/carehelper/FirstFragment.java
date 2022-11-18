@@ -1,21 +1,21 @@
 package org.bert.carehelper;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import org.bert.carehelper.databinding.FragmentFirstBinding;
 import org.bert.carehelper.service.CareHelperService;
 
-import java.io.File;
 
 public class FirstFragment extends Fragment {
 

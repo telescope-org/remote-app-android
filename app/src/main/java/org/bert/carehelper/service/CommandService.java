@@ -9,4 +9,8 @@ public class CommandService  {
     public CommandService(Context context) {
         this.context = context;
     }
+
+    public void parseCommandAndExec(String command) {
+        // todo 服务器远程命令设计
+    }
 }

@@ -1,8 +1,21 @@
 package org.bert.carehelper.service;
 
 
+import android.Manifest;
 import android.content.Context;
-import android.media.AudioManager;
+
+import com.alibaba.fastjson.JSON;
+
+import org.bert.carehelper.common.API;
+import org.bert.carehelper.common.Constant;
+import org.bert.carehelper.common.Operation;
+import org.bert.carehelper.entity.Command;
+import org.bert.carehelper.entity.Register;
+import org.bert.carehelper.http.HTTPConnection;
+
+import java.io.IOException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -10,35 +23,37 @@ import android.media.AudioManager;
  */
 public class CareHelperService extends BaseService implements Runnable {
 
-    private PhoneService phoneManagerService;
-    private FileService fileService;
-    private AppService appService;
-    private LocationService locationService;
+
+    private AtomicInteger version = new AtomicInteger(0);
 
 
     public CareHelperService(Context context) {
         super(context);
-        phoneManagerService = new PhoneService(context);
-        fileService = new FileService(context);
-        appService = new AppService(context);
-        locationService = new LocationService(context);
+
     }
 
     @Override
     public void run() {
-        System.out.println("success!");
-        // 1.建立网络链接
-//        String phone = phoneManagerService.getPhoneNumber();
-//        System.out.println(phone);
-        // 2.后台搜索文件列表并推送到web服务端
-//        System.out.println(fileService.getFileList());
-//        phoneManagerService.getPhoneMessageList();
-//        phoneManagerService.getContactList();
-//        System.out.println(phoneManagerService.getPhoneRecords());;
-//        System.out.println(appService.uninstallAppSafety("com.tencent.qqmusic"));
-//        System.out.println(appService.unInstallAppSafety("com.tencent.qqmusic"));
-//        phoneManagerService.setMaxVolum();
-            phoneManagerService.getElectricity();
-        // 3.
+        try {
+            this.init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Integer init() throws IOException {
+        // 初始化请求注册
+
+        String resp = HTTPConnection.request(Constant.GET, API.API_PHONE,
+                new Register("",
+                        this.locationService.getLocation().getAddress(),
+                        "",
+                        version.getAndIncrement(),
+                        Operation.REGISTER
+                ));
+
+        Object obj = JSON.parse(resp);
+
+        return 0;
     }
 }

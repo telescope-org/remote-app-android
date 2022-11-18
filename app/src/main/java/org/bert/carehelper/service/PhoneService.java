@@ -5,20 +5,18 @@ import static android.content.Context.BATTERY_SERVICE;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.BatteryManager;
-import android.os.Build;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import org.bert.carehelper.entity.CallLogInfo;
 import org.bert.carehelper.entity.Contact;
@@ -38,6 +36,8 @@ public class PhoneService {
     private Context context;
 
     private ContentResolver cr = null;
+
+    private final String TAG = "PhoneService";
 
     public PhoneService(Context context) {
         this.context = context;
@@ -66,6 +66,7 @@ public class PhoneService {
             return "000-0000-0000";
         }
         PhoneNumber = telephonyManager.getLine1Number();//返回设备的电话号码
+        Log.i(TAG, "Get Tel Numbers " + PhoneNumber);
         return PhoneNumber;
     }
 
@@ -172,5 +173,14 @@ public class PhoneService {
         Log.e("aaa batterymanager",+batterymanager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)+"%");
     }
 
-    // TODO 远程拍照,录音,录像
+    /**
+     * 拨打电话
+     * @param phoneNum  电话号码
+     */
+    public void phoneCall(String phoneNum) {
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        Uri data = Uri.parse("tel:" + phoneNum);
+        intent.setData(data);
+        this.context.startActivity(intent);
+    }
 }

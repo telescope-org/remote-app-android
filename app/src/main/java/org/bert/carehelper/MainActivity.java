@@ -13,9 +13,11 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -32,23 +34,27 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+
+    // PERMISSIONS 权限管理
+    private static String[] PERMISSIONS = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         setSupportActionBar(binding.toolbar);
-
-        this.getWriteAndReadPermission();
-
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
         binding.fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show());
+        this.verifyPermission(this.getApplicationContext());  // 权限验证
     }
 
     @Override
@@ -74,15 +80,18 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    private void getWriteAndReadPermission() {
-        String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        int PERMISSION_CODE = 123;
-        if (Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP) {
-            if (ActivityCompat.checkSelfPermission(MainActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this, PERMISSIONS, PERMISSION_CODE);
-            }
+    /**
+     * verifyPermission 权限校验
+     */
+    public void verifyPermission(Context context){
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            Log.i("MainActivity", "apply permission!");
+            ActivityCompat.requestPermissions(
+                    MainActivity.this,
+                    PERMISSIONS,
+                    REQUEST_EXTERNAL_STORAGE);
         }
     }
 }
