@@ -3,9 +3,11 @@ package org.bert.carehelper.service;
 
 import android.content.Context;
 
+import androidx.fragment.app.FragmentActivity;
+
 public class BaseService {
 
-    private Context context;
+    protected Context context;
 
     protected PhoneService phoneManagerService;
     protected FileService fileService;
@@ -13,17 +15,13 @@ public class BaseService {
     protected LocationService locationService;
     protected CommandService commandService;
 
-    public BaseService(Context context) {
+    public BaseService(Context context, FragmentActivity activity) {
         this.context = context;
         this.phoneManagerService = new PhoneService(context);
-        this.fileService = new FileService(context);
+        this.fileService = new FileService(context, activity);
         this.appService = new AppService(context);
         this.locationService = new LocationService(context);
         this.commandService = new CommandService(context);
-    }
-
-    public Context getContext() {
-        return context;
     }
 
     public String getTag(Class clazz) {

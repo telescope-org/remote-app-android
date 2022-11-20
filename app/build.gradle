@@ -48,4 +48,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.tencent.map.geolocation:TencentLocationSdk-openplatform:7.3.0'
+
+    implementation group: 'com.guolindev.permissionx', name: 'permissionx', version: '1.6.4'
+
 }
