@@ -5,23 +5,24 @@ import android.content.Context;
 
 import androidx.fragment.app.FragmentActivity;
 
+import org.bert.carehelper.annotation.Load;
+import org.bert.carehelper.common.ServiceContainer;
+
 public class BaseService {
 
     protected Context context;
 
+    @Load(value = "PhoneService")
     protected PhoneService phoneManagerService;
+    @Load(value = "FileService")
     protected FileService fileService;
+    @Load(value = "AppService")
     protected AppService appService;
+    @Load(value = "LocationService")
     protected LocationService locationService;
-    protected CommandService commandService;
 
     public BaseService(Context context, FragmentActivity activity) {
         this.context = context;
-        this.phoneManagerService = new PhoneService(context);
-        this.fileService = new FileService(context, activity);
-        this.appService = new AppService(context);
-        this.locationService = new LocationService(context);
-        this.commandService = new CommandService(context);
     }
 
     public String getTag(Class clazz) {

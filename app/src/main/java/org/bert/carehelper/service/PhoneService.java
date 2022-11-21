@@ -18,6 +18,7 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import org.bert.carehelper.annotation.ServiceInject;
 import org.bert.carehelper.entity.CallLogInfo;
 import org.bert.carehelper.entity.Contact;
 
@@ -31,7 +32,8 @@ import java.util.Map;
  * 手机相关服务
  * 需要获取相关权限
  */
-public class PhoneService {
+@ServiceInject(value = "PhoneService")
+public class PhoneService extends Service  {
 
     private Context context;
 

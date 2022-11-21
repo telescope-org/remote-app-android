@@ -2,11 +2,11 @@ package org.bert.carehelper.entity;
 
 import java.util.Date;
 
-public class Command<T> {
+public class Command {
 
     private String type;
 
-    private T content;
+    private String content;
 
     private Date sendTime;
 
@@ -20,11 +20,11 @@ public class Command<T> {
         this.type = type;
     }
 
-    public T getContent() {
+    public String getContent() {
         return content;
     }
 
-    public void setContent(T content) {
+    public void setContent(String content) {
         this.content = content;
     }
 

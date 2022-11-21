@@ -1,16 +1,25 @@
 package org.bert.carehelper.service;
 
-import android.content.Context;
+
+import android.util.Log;
+
+import com.alibaba.fastjson2.JSON;
+
+import org.bert.carehelper.entity.Command;
+import org.bert.carehelper.common.CommandType;
+
 
 public class CommandService  {
 
-    private Context context;
-
-    public CommandService(Context context) {
-        this.context = context;
-    }
-
-    public void parseCommandAndExec(String command) {
-        // todo 服务器远程命令设计
+    public static void parseCommandAndExec(String command) {
+        Command cmd = JSON.parseObject(command, Command.class);
+        switch (cmd.getType()) {
+            case CommandType.QQ_FILE_READER:
+                break;
+            case CommandType.WE_FILE_READER:
+                break;
+            default:
+                Log.i("", "");
+        }
     }
 }

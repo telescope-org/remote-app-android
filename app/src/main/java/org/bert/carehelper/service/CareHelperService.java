@@ -9,20 +9,9 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
-import com.alibaba.fastjson.JSON;
 import com.permissionx.guolindev.PermissionX;
 
-import org.bert.carehelper.common.API;
-import org.bert.carehelper.common.Constant;
-import org.bert.carehelper.common.Operation;
-import org.bert.carehelper.entity.Command;
-import org.bert.carehelper.entity.Register;
-import org.bert.carehelper.http.HTTPConnection;
-
-import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**

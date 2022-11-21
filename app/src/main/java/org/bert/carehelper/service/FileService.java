@@ -1,26 +1,22 @@
 package org.bert.carehelper.service;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.FragmentActivity;
 
 import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.FileUrlUtils;
+import org.bert.carehelper.annotation.ServiceInject;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class FileService {
+@ServiceInject(value = "FileService")
+public class FileService extends Service {
     private Context context;
 
     private final String TAG = "FileService";
