@@ -14,12 +14,9 @@ import com.tencent.map.geolocation.TencentLocationListener;
 import com.tencent.map.geolocation.TencentLocationManager;
 import com.tencent.map.geolocation.TencentLocationRequest;
 
-import org.bert.carehelper.annotation.ServiceInject;
-
 import java.io.IOException;
 import java.util.List;
 
-@ServiceInject(value = "LocationService")
 public class LocationService extends Service  implements TencentLocationListener {
 
     private final String TAG = "LocationService";

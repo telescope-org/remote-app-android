@@ -50,5 +50,6 @@ dependencies {
     implementation 'com.tencent.map.geolocation:TencentLocationSdk-openplatform:7.3.0'
 
     implementation group: 'com.guolindev.permissionx', name: 'permissionx', version: '1.6.4'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
 
 }

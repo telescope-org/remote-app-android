@@ -10,7 +10,8 @@ public class ServiceContainer {
     private Map<String, Service> serviceMap = new HashMap<>();
     private static ServiceContainer instance;
 
-    private ServiceContainer() {}
+    private ServiceContainer() {
+    }
 
     public static ServiceContainer getInstance() {
         if (instance == null) {
@@ -23,11 +24,13 @@ public class ServiceContainer {
         return instance;
     }
 
-    public void addService(String key, Service service) {
+
+    public ServiceContainer addService(String key, Service service) {
         if (this.serviceMap == null) {
             this.serviceMap = new HashMap<>();
         }
         this.serviceMap.put(key, service);
+        return this;
     }
 
     public Service getService(String key) throws Exception {

@@ -8,14 +8,12 @@ import androidx.fragment.app.FragmentActivity;
 
 import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.FileUrlUtils;
-import org.bert.carehelper.annotation.ServiceInject;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 
-@ServiceInject(value = "FileService")
 public class FileService extends Service {
     private Context context;
 
@@ -52,10 +50,9 @@ public class FileService extends Service {
 
     /**
      * 读取QQ下载的文件目录
-     * @param target 包名（例如：com.tencent.qq）
      */
-    public Map<String, DocumentFile> getQQRecvFiles(String target) {
-        DocumentFile qqFile = this.fileMap.get(target);
+    public Map<String, DocumentFile> getQQRecvFiles() {
+        DocumentFile qqFile = this.fileMap.get("com.tencent.mobileqq");
         if (qqFile != null) {
             DocumentFile[] appFiles = qqFile.listFiles();
             Map<String, DocumentFile> qqFileMap = parseAppFiles(appFiles);

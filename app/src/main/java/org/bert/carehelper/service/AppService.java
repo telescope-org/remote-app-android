@@ -7,13 +7,10 @@ import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.util.Log;
 
-import org.bert.carehelper.annotation.ServiceInject;
-
 import java.util.ArrayList;
 import java.util.List;
 
 
-@ServiceInject(value = "AppService")
 public class AppService extends Service {
 
 

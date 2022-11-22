@@ -32,7 +32,6 @@ import java.util.Map;
  * 手机相关服务
  * 需要获取相关权限
  */
-@ServiceInject(value = "PhoneService")
 public class PhoneService extends Service  {
 
     private Context context;
