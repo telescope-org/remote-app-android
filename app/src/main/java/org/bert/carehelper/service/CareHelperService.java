@@ -11,7 +11,9 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.permissionx.guolindev.PermissionX;
 
+import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.entity.Command;
+import org.bert.carehelper.entity.CommandResponse;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,6 +44,7 @@ public class CareHelperService extends BaseService implements Runnable {
         super(context, activity);
         this.activity = activity;
         this.commandService = new CommandService();
+        CareHelperEnvironment.getInstance().setContext(context);
         try {
             this.fileService = ((FileService)this.container.getService("FileService"));
         } catch (Exception e) {
@@ -55,11 +58,24 @@ public class CareHelperService extends BaseService implements Runnable {
             // 1.初始化准备工作
             this.init();
             // 2.建立websocket等待指令
-
+            // 得到响应结果，并通过CGI回传给远端口
+            CommandResponse response =  this.commandService.parseCommandAndExec("");
             System.out.println("todo");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 发起网络请求
+     */
+    private void httpRequest() {}
+
+    /**
+     * websocket监听
+     */
+    private String webSocketListener() {
+        return "";
     }
 
     /**

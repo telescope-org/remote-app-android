@@ -3,11 +3,9 @@ package org.bert.carehelper.http;
 import com.alibaba.fastjson2.JSON;
 
 import org.bert.carehelper.common.Constant;
-import org.bert.carehelper.entity.RequestPackage;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.MediaType;

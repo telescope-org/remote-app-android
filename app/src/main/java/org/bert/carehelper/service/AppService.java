@@ -7,11 +7,13 @@ import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.util.Log;
 
+import org.bert.carehelper.entity.CommandResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class AppService extends Service {
+public class AppService implements Service {
 
 
     private Context context;
@@ -53,4 +55,10 @@ public class AppService extends Service {
         return true;
     }
 
+
+    @Override
+    public CommandResponse doCommand(String content) {
+
+        return null;
+    }
 }

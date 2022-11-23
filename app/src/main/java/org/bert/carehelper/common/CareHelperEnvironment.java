@@ -1,6 +1,7 @@
 package org.bert.carehelper.common;
 
 import android.app.Activity;
+import android.content.Context;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -13,6 +14,8 @@ public class CareHelperEnvironment {
     private FragmentActivity activity;
 
     private Integer requestCode;
+
+    private Context context;
 
     private CareHelperEnvironment() {}
 
@@ -46,5 +49,13 @@ public class CareHelperEnvironment {
 
     public boolean isSameRequestCode(Integer requestCode) {
         return Objects.equals(requestCode, this.requestCode);
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 }

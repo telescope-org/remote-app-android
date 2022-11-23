@@ -5,7 +5,7 @@ import org.bert.carehelper.common.Operation;
 
 import java.util.Date;
 
-public class Register extends RequestPackage{
+public class Register extends CommandResponse {
 
     private String token;
 

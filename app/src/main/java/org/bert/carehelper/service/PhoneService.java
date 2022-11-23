@@ -18,8 +18,8 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
-import org.bert.carehelper.annotation.ServiceInject;
 import org.bert.carehelper.entity.CallLogInfo;
+import org.bert.carehelper.entity.CommandResponse;
 import org.bert.carehelper.entity.Contact;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import java.util.Map;
  * 手机相关服务
  * 需要获取相关权限
  */
-public class PhoneService extends Service  {
+public class PhoneService implements Service  {
 
     private Context context;
 
@@ -183,5 +183,11 @@ public class PhoneService extends Service  {
         Uri data = Uri.parse("tel:" + phoneNum);
         intent.setData(data);
         this.context.startActivity(intent);
+    }
+
+    @Override
+    public CommandResponse doCommand(String content) {
+
+        return null;
     }
 }

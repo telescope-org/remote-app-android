@@ -14,10 +14,12 @@ import com.tencent.map.geolocation.TencentLocationListener;
 import com.tencent.map.geolocation.TencentLocationManager;
 import com.tencent.map.geolocation.TencentLocationRequest;
 
+import org.bert.carehelper.entity.CommandResponse;
+
 import java.io.IOException;
 import java.util.List;
 
-public class LocationService extends Service  implements TencentLocationListener {
+public class LocationService  implements TencentLocationListener, Service {
 
     private final String TAG = "LocationService";
 
@@ -82,5 +84,11 @@ public class LocationService extends Service  implements TencentLocationListener
     @Override
     public void onStatusUpdate(String s, int i, String s1) {
         System.out.println(s);
+    }
+
+    @Override
+    public CommandResponse doCommand(String content) {
+
+        return null;
     }
 }

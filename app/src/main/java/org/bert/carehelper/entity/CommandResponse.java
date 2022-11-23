@@ -4,7 +4,7 @@ import org.bert.carehelper.common.Operation;
 
 import java.util.Date;
 
-public class RequestPackage {
+public class CommandResponse {
 
     private Operation operation;
 
@@ -12,7 +12,8 @@ public class RequestPackage {
 
     private int version;
 
-    public RequestPackage(Operation operation, Date createTime, int version) {
+
+    public CommandResponse(Operation operation, Date createTime, int version) {
         this.operation = operation;
         this.createTime = createTime;
         this.version = version;

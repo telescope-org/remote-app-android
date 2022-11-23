@@ -8,13 +8,14 @@ import androidx.fragment.app.FragmentActivity;
 
 import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.FileUrlUtils;
+import org.bert.carehelper.entity.CommandResponse;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class FileService extends Service {
+public class FileService implements Service {
     private Context context;
 
     private final String TAG = "FileService";
@@ -70,10 +71,9 @@ public class FileService extends Service {
 
     /**
      * 读取wechat文件列表
-     * @param target 包名（例如：com.tencent.qq）
      */
-    public Map<String, DocumentFile> getWechatFiles(String target) {
-        DocumentFile wechatFolder = this.fileMap.get(target);
+    public Map<String, DocumentFile> getWechatFiles() {
+        DocumentFile wechatFolder = this.fileMap.get("com.tencent.mm");
         if (wechatFolder != null) {
             DocumentFile[] appFiles = wechatFolder.listFiles();
             Map<String, DocumentFile> wechatFileMap = parseAppFiles(appFiles);
@@ -98,4 +98,9 @@ public class FileService extends Service {
         return fileMap;
     }
 
+    @Override
+    public CommandResponse doCommand(String content) {
+
+        return null;
+    }
 }
