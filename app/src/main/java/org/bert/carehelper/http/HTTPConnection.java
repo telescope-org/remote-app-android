@@ -3,6 +3,7 @@ package org.bert.carehelper.http;
 import com.alibaba.fastjson2.JSON;
 
 import org.bert.carehelper.common.Constant;
+import org.bert.carehelper.entity.AbstractCommand;
 
 import java.io.IOException;
 import java.util.Locale;

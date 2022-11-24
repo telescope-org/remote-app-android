@@ -71,6 +71,12 @@ public class PhoneService implements Service  {
         return PhoneNumber;
     }
 
+    public String getDeviceId() {
+        TelephonyManager telephonyManager = (TelephonyManager) this.context
+                .getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager.getDeviceId();
+    }
+
 
     /**
      * 获取短信列表
@@ -184,6 +190,7 @@ public class PhoneService implements Service  {
         intent.setData(data);
         this.context.startActivity(intent);
     }
+
 
     @Override
     public CommandResponse doCommand(String content) {

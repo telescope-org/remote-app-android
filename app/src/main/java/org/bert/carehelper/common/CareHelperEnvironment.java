@@ -1,9 +1,12 @@
 package org.bert.carehelper.common;
 
-import android.app.Activity;
+import static org.bert.carehelper.common.RSAtUtils.encrypt;
+
 import android.content.Context;
 
 import androidx.fragment.app.FragmentActivity;
+
+import org.bert.carehelper.entity.Contact;
 
 import java.util.Objects;
 
@@ -18,6 +21,8 @@ public class CareHelperEnvironment {
     private Context context;
 
     private CareHelperEnvironment() {}
+
+    private String token;
 
     public static CareHelperEnvironment getInstance() {
         // 先判断实例是否存在，若不存在再对类对象进行加锁处理
@@ -57,5 +62,16 @@ public class CareHelperEnvironment {
 
     public void setContext(Context context) {
         this.context = context;
+    }
+
+    public String getToken(String phoneNumber) {
+        if (token == null || token == "") {
+            setToken(encrypt(phoneNumber, Constant.PUBLIC_KEY));
+        }
+        return token;
+    }
+
+    private void setToken(String token) {
+        this.token = token;
     }
 }

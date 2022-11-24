@@ -5,7 +5,7 @@ import org.bert.carehelper.common.Operation;
 
 import java.util.Date;
 
-public class Register extends CommandResponse {
+public class Register extends AbstractCommand {
 
     private String token;
 

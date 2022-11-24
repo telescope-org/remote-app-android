@@ -10,10 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import org.bert.carehelper.annotation.AnnotationUtils;
 import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.databinding.FragmentFirstBinding;
 import org.bert.carehelper.service.CareHelperService;
