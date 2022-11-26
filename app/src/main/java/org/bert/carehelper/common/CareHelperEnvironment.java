@@ -24,6 +24,8 @@ public class CareHelperEnvironment {
 
     private String token;
 
+    private String uuid;
+
     public static CareHelperEnvironment getInstance() {
         // 先判断实例是否存在，若不存在再对类对象进行加锁处理
         if (instance == null) {
@@ -73,5 +75,13 @@ public class CareHelperEnvironment {
 
     private void setToken(String token) {
         this.token = token;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 }

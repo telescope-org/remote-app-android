@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.permissionx.guolindev.PermissionX;
 
 import org.bert.carehelper.common.API;
@@ -16,6 +18,7 @@ import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.Operation;
 import org.bert.carehelper.entity.Command;
 import org.bert.carehelper.entity.CommandResponse;
+import org.bert.carehelper.entity.CommonResponse;
 import org.bert.carehelper.entity.Register;
 import org.bert.carehelper.http.HTTPConnection;
 
@@ -82,8 +85,14 @@ public class CareHelperService extends BaseService implements Runnable {
     /**
      * 发起网络请求
      */
-    private void httpRequest(String api, Register register) throws IOException {
-        HTTPConnection.request("GET", api, register);
+    private boolean registerApp(String api, Register register) throws IOException {
+       String resp = HTTPConnection.request("GET", api, register);
+        CommonResponse commonResp = JSON.parseObject(resp, CommonResponse.class);
+        if (commonResp.getCode() == 200) {
+            return true;
+        }
+        Log.e(this.TAG, "register failed! ", new Throwable(commonResp.getMessage()));
+        return false;
     }
 
     /**
@@ -116,12 +125,11 @@ public class CareHelperService extends BaseService implements Runnable {
                 atomicBoolean.set(false);
             }
         });
-        // 使用手机号码去获取token用于前后台交互确认上线手机
+        // 注册App
         String token = environment.getToken(this.phoneService.getPhoneNumber());
-        this.httpRequest(API.API_PHONE, new Register(token, this.locationService.getLocation().getAddress(),
+        boolean isRegisterApp = this.registerApp(API.API_PHONE, new Register(token, this.locationService.getLocation().getAddress(),
                 this.phoneService.getDeviceId(), 0, Operation.REGISTER));
-
-
+        atomicBoolean.set(isRegisterApp);
         // 确定所有启动流程都完成之后再返回
         int tryTimes = 0;
         while (true) {

@@ -6,6 +6,7 @@ import org.bert.carehelper.common.Constant;
 import org.bert.carehelper.entity.AbstractCommand;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -43,26 +44,32 @@ public class HTTPConnection<T> {
 
     /**
      * parseUrlParams 参数拼接方法
+     *
      * @param data 传入的参数
-     * @param <T> 限定类型
+     * @param <T>  限定类型
      * @return 返回结果：?addr=1234&name=1234
      */
     private static <T> String parseUrlParams(T data) {
         StringBuilder stringBuilder = new StringBuilder();
-
-        // TODO 反射获取字段参数，然后进行组装
-        // 无参数兜底
-//        if (data.size() == 0) {
-//            return "";
-//        }
-//        stringBuilder.append("?");
-//        for (String key : data.keySet()) {
-//            stringBuilder
-//                    .append(key)
-//                    .append("=")
-//                    .append(data.get(key))
-//                    .append("&");
-//        }
+        // 反射获取字段并组装
+        Class clazz = data.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            Object value = null;
+            try {
+                value = field.get(data);
+                stringBuilder
+                        .append(fieldName)
+                        .append("=")
+                        .append(value)
+                        .append("&");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
         return stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
     }
 }
