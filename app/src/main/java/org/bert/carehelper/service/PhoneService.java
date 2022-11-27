@@ -74,7 +74,7 @@ public class PhoneService implements Service  {
     public String getDeviceId() {
         TelephonyManager telephonyManager = (TelephonyManager) this.context
                 .getSystemService(Context.TELEPHONY_SERVICE);
-        return telephonyManager.getDeviceId();
+        return "";
     }
 
 

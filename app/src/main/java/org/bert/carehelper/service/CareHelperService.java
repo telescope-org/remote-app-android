@@ -2,21 +2,19 @@ package org.bert.carehelper.service;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.permissionx.guolindev.PermissionX;
 
 import org.bert.carehelper.common.API;
 import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.Operation;
-import org.bert.carehelper.entity.Command;
 import org.bert.carehelper.entity.CommandResponse;
 import org.bert.carehelper.entity.CommonResponse;
 import org.bert.carehelper.entity.Register;
@@ -75,23 +73,29 @@ public class CareHelperService extends BaseService implements Runnable {
             this.init();
             // 2.建立websocket等待指令
             // 得到响应结果，并通过CGI回传给远端口
-            CommandResponse response = this.commandService.parseCommandAndExec("");
-            System.out.println("todo");
+//            CommandResponse response = this.commandService.parseCommandAndExec("");
+//            System.out.println("todo");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
     /**
      * 发起网络请求
      */
     private boolean registerApp(String api, Register register) throws IOException {
-       String resp = HTTPConnection.request("GET", api, register);
-        CommonResponse commonResp = JSON.parseObject(resp, CommonResponse.class);
-        if (commonResp.getCode() == 200) {
-            return true;
-        }
-        Log.e(this.TAG, "register failed! ", new Throwable(commonResp.getMessage()));
+        new Thread(() -> {
+            Looper.prepare();
+            new HTTPConnection(api, register, "GET").run();
+        }).start();
+
+//       String resp = HTTPConnection.request("GET", api, register);
+//        CommonResponse commonResp = JSON.parseObject(resp, CommonResponse.class);
+//        if (commonResp.getCode() == 200) {
+//            return true;
+//        }
+//        Log.e(this.TAG, "register failed! ", new Throwable(commonResp.getMessage()));
         return false;
     }
 
@@ -125,11 +129,18 @@ public class CareHelperService extends BaseService implements Runnable {
                 atomicBoolean.set(false);
             }
         });
+
         // 注册App
-        String token = environment.getToken(this.phoneService.getPhoneNumber());
-        boolean isRegisterApp = this.registerApp(API.API_PHONE, new Register(token, this.locationService.getLocation().getAddress(),
-                this.phoneService.getDeviceId(), 0, Operation.REGISTER));
-        atomicBoolean.set(isRegisterApp);
+        String token = environment.getToken(phoneService.getPhoneNumber());
+        try {
+            boolean isRegisterApp = registerApp(API.API_PHONE + "/register", new Register(token, "默认地址",
+                    phoneService.getDeviceId(), 0, Operation.REGISTER));
+
+            atomicBoolean.set(isRegisterApp);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // 确定所有启动流程都完成之后再返回
         int tryTimes = 0;
         while (true) {

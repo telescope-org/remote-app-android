@@ -4,6 +4,7 @@ package org.bert.carehelper.service;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 
@@ -13,6 +14,7 @@ import com.tencent.map.geolocation.TencentLocation;
 import com.tencent.map.geolocation.TencentLocationListener;
 import com.tencent.map.geolocation.TencentLocationManager;
 import com.tencent.map.geolocation.TencentLocationRequest;
+import com.tencent.map.geolocation.TencentPoi;
 
 import org.bert.carehelper.entity.CommandResponse;
 
@@ -29,10 +31,18 @@ public class LocationService  implements TencentLocationListener, Service {
 
     private TencentLocationManager mLocationManager;
 
+    private boolean canGetLocation = false;
+
     public LocationService(Context context) {
         this.context = context;
         this.mLocationManager = TencentLocationManager.getInstance(this.context);
 
+        // 初始化地图SDK
+        TencentLocationRequest request = TencentLocationRequest.create();
+        request.setAllowGPS(true);
+        request.setAllowDirection(true);
+        request.setIndoorLocationMode(true);
+        this.mLocationManager.requestLocationUpdates(request, this, Looper.getMainLooper());
     }
 
     public void getAddress(double latitude, double longitude) {
@@ -51,19 +61,6 @@ public class LocationService  implements TencentLocationListener, Service {
     }
 
     /**
-     * 获取本地地理位置
-     * @return
-     */
-    public TencentLocation getLocation() {
-        TencentLocationRequest request = TencentLocationRequest.create();
-        request.setAllowGPS(true);
-        request.setAllowDirection(true);
-        request.setIndoorLocationMode(true);
-        this.mLocationManager.requestLocationUpdates(request, this, Looper.getMainLooper());
-        return this.location;
-    }
-
-    /**
      * 关闭地理位置获取
      */
     public void removeUpdates() {
@@ -75,6 +72,7 @@ public class LocationService  implements TencentLocationListener, Service {
     public void onLocationChanged(TencentLocation tencentLocation, int i, String s) {
         if ("OK".equals(s)) {
             this.location = tencentLocation;
+            this.setCanGetLocation(true);
             Log.i(TAG, "get location success! location is " + this.location.getAddress() + ";");
         } else {
             Log.e(TAG, "location failed");
@@ -90,5 +88,13 @@ public class LocationService  implements TencentLocationListener, Service {
     public CommandResponse doCommand(String content) {
 
         return null;
+    }
+
+    public boolean canGetLocation() {
+        return canGetLocation;
+    }
+
+    public void setCanGetLocation(boolean canGetLocation) {
+        this.canGetLocation = canGetLocation;
     }
 }
