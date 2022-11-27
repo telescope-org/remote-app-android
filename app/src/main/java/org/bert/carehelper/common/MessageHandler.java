@@ -15,4 +15,10 @@ public class MessageHandler extends Handler {
         String val = data.getString("value");
         Log.i("MessageHandler","请求结果:" + val);
     }
+
+    @NonNull
+    @Override
+    public String getMessageName(@NonNull Message message) {
+        return super.getMessageName(message);
+    }
 }

@@ -148,14 +148,13 @@ public class CareHelperService extends BaseService implements Runnable {
             // 30s如果还没启动，就设置为失败。
             if (tryTimes > 10) {
                 Log.e(TAG, "init failed!");
+                return;
             }
             if (isInitSuccess) {
                 Log.i(TAG, "init success!");
                 return;
             }
             tryTimes++;
-            // 3s 检查一次
-            Thread.sleep(3000);
         }
 
     }
