@@ -1,13 +1,14 @@
 package org.bert.carehelper.http;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
 import com.alibaba.fastjson2.JSON;
 
+import org.bert.carehelper.common.CareHelperContext;
 import org.bert.carehelper.common.Constant;
-import org.bert.carehelper.common.MessageHandler;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
@@ -27,13 +28,16 @@ public class HTTPConnection<T> {
 
     private String method;
 
-    private MessageHandler handler;
+    private Handler handler;
+
+    private CareHelperContext context = CareHelperContext.getInstance();
+
 
     public HTTPConnection(String api, T data, String method) {
         this.url = String.format("%s%s", Constant.BASE_API, api);
         this.data = data;
         this.method = method;
-        this.handler = new MessageHandler();
+        this.handler = this.context.getNetworkHandler();
     }
 
     /**

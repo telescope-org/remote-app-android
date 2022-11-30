@@ -58,14 +58,6 @@ public class CareHelperEnvironment {
         return Objects.equals(requestCode, this.requestCode);
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
     public String getToken(String phoneNumber) {
         if (token == null || token == "") {
             setToken(encrypt(phoneNumber, Constant.PUBLIC_KEY));

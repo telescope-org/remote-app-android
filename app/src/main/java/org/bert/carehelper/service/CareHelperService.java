@@ -3,16 +3,21 @@ package org.bert.carehelper.service;
 
 import android.Manifest;
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import com.alibaba.fastjson.JSON;
 import com.permissionx.guolindev.PermissionX;
 
 import org.bert.carehelper.common.API;
+import org.bert.carehelper.common.CareHelperContext;
 import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.Operation;
 import org.bert.carehelper.entity.CommandResponse;
@@ -50,14 +55,40 @@ public class CareHelperService extends BaseService implements Runnable {
 
     private LocationService locationService;
 
-    private CareHelperEnvironment environment = CareHelperEnvironment.getInstance();
+    private CareHelperContext careHelperContext = CareHelperContext.getInstance();
+
+    private Handler networkHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+            Bundle data = msg.getData();
+            String val = data.getString("value");
+            Log.i("MessageHandler","请求结果:" + val);
+        }
+    };
+
+    private Handler webSocketHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+            Bundle data = msg.getData();
+            String val = data.getString("value");
+            Log.i("MessageHandler","请求结果:" + val);
+        }
+    };
 
     public CareHelperService(Context context, FragmentActivity activity) {
         super(context, activity);
-        this.activity = activity;
-        this.commandService = new CommandService();
-        CareHelperEnvironment.getInstance().setContext(context);
         try {
+            this.activity = activity;
+            this.commandService = new CommandService();
+            this.careHelperContext.setAndroidContext(context);
+            // 网络处理handler
+            this.careHelperContext.setNetworkHandler(networkHandler);
+            // websocket handler
+            this.careHelperContext.setWebSocketHandler(webSocketHandler);
             this.fileService = ((FileService) this.container.getService("FileService"));
             this.phoneService = ((PhoneService) this.container.getService("PhoneService"));
             this.locationService = ((LocationService) this.container.getService("LocationService"));
@@ -84,19 +115,11 @@ public class CareHelperService extends BaseService implements Runnable {
     /**
      * 发起网络请求
      */
-    private boolean registerApp(String api, Register register) throws IOException {
+    private void registerApp(String api, Register register) throws IOException {
         new Thread(() -> {
             Looper.prepare();
             new HTTPConnection(api, register, "GET").run();
         }).start();
-
-//       String resp = HTTPConnection.request("GET", api, register);
-//        CommonResponse commonResp = JSON.parseObject(resp, CommonResponse.class);
-//        if (commonResp.getCode() == 200) {
-//            return true;
-//        }
-//        Log.e(this.TAG, "register failed! ", new Throwable(commonResp.getMessage()));
-        return false;
     }
 
     /**
@@ -131,12 +154,11 @@ public class CareHelperService extends BaseService implements Runnable {
         });
 
         // 注册App
-        String token = environment.getToken(phoneService.getPhoneNumber());
+        String token = this.careHelperContext.getEnvironment().getToken(phoneService.getPhoneNumber());
         try {
-            boolean isRegisterApp = registerApp(API.API_PHONE + "/register", new Register(token, "默认地址",
+            registerApp(API.API_PHONE + "/register", new Register(token, "默认地址",
                     phoneService.getDeviceId(), 0, Operation.REGISTER));
 
-            atomicBoolean.set(isRegisterApp);
         } catch (IOException e) {
             e.printStackTrace();
         }
