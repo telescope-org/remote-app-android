@@ -43,7 +43,7 @@ public class CommandService  {
      * 解析并执行命令
      * @param command 命令字符
      */
-    public CommandResponse parseCommandAndExec(String command) {
+    public void parseCommandAndExec(String command) {
         Command cmd = JSON.parseObject(command, Command.class);
         CommandResponse response = null;
         switch (cmd.getType()) {
@@ -60,7 +60,5 @@ public class CommandService  {
                 Log.e("CommandService", "type error!");
                 break;
         }
-        return response;
     }
-
 }

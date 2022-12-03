@@ -13,19 +13,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.permissionx.guolindev.PermissionX;
 
-import org.bert.carehelper.common.API;
 import org.bert.carehelper.common.CareHelperContext;
-import org.bert.carehelper.common.CareHelperEnvironment;
 import org.bert.carehelper.common.Operation;
 import org.bert.carehelper.entity.CommandResponse;
-import org.bert.carehelper.entity.CommonResponse;
+import org.bert.carehelper.entity.Poll;
 import org.bert.carehelper.entity.Register;
+import org.bert.carehelper.entity.RegisterResponse;
 import org.bert.carehelper.http.HTTPConnection;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -57,14 +59,34 @@ public class CareHelperService extends BaseService implements Runnable {
 
     private CareHelperContext careHelperContext = CareHelperContext.getInstance();
 
+    private AtomicBoolean atomicBoolean;
+
     private Handler networkHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-
             Bundle data = msg.getData();
             String val = data.getString("value");
-            Log.i("MessageHandler","请求结果:" + val);
+            Log.i("CareHelperService", val);
+            JSONObject jsonObject = JSONObject.parseObject(val);
+            if ((Integer) jsonObject.get("code") == 200) {
+                switch ((Integer) jsonObject.get("type")) {
+                    case 0:
+                        JSONObject response = (JSONObject) jsonObject.get("data");
+                        careHelperContext.getEnvironment().setToken((String) response.get("token"));
+                        Log.i("CareHelperService", "set token success!");
+                        break;
+                    case 1:
+                        locationService.removeUpdates();
+                        Log.i("CareHelperService", "location update success, remove update location func!");
+                        break;
+                    case 2:
+                        commandService.parseCommandAndExec("");
+                    default:
+                        Log.i("", "");
+                }
+            }
+            Log.i("MessageHandler", "请求结果:" + val);
         }
     };
 
@@ -72,10 +94,9 @@ public class CareHelperService extends BaseService implements Runnable {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-
             Bundle data = msg.getData();
             String val = data.getString("value");
-            Log.i("MessageHandler","请求结果:" + val);
+            Log.i("MessageHandler", "请求结果:" + val);
         }
     };
 
@@ -85,9 +106,7 @@ public class CareHelperService extends BaseService implements Runnable {
             this.activity = activity;
             this.commandService = new CommandService();
             this.careHelperContext.setAndroidContext(context);
-            // 网络处理handler
             this.careHelperContext.setNetworkHandler(networkHandler);
-            // websocket handler
             this.careHelperContext.setWebSocketHandler(webSocketHandler);
             this.fileService = ((FileService) this.container.getService("FileService"));
             this.phoneService = ((PhoneService) this.container.getService("PhoneService"));
@@ -100,33 +119,50 @@ public class CareHelperService extends BaseService implements Runnable {
     @Override
     public void run() {
         try {
-            // 1.初始化准备工作
             this.init();
-            // 2.建立websocket等待指令
-            // 得到响应结果，并通过CGI回传给远端口
-//            CommandResponse response = this.commandService.parseCommandAndExec("");
-//            System.out.println("todo");
+            boolean isInitSuccess = atomicBoolean.get();
+            if (isInitSuccess) {
+                Log.i(TAG, "init success and wait resp!");
+                this.waitResponse();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void waitResponse() {
+        Poll poll = new Poll(Operation.POLL,
+                new Date(),
+                2,
+                careHelperContext.getEnvironment().getToken(),
+                this.careHelperContext.getPhone()
+        );
+        Timer mTimer = new Timer();
+        TimerTask mTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                careHelperContext
+                        .getThreadPoolExecutor()
+                        .execute(() ->
+                                new HTTPConnection("/api/command/poll",
+                                        poll,
+                                        "GET").run()
+                        );
+            }
+        };
+        mTimer.schedule(mTimerTask, 100, 10 * 1000);
     }
 
 
     /**
      * 发起网络请求
      */
-    private void registerApp(String api, Register register) throws IOException {
-        new Thread(() -> {
-            Looper.prepare();
-            new HTTPConnection(api, register, "GET").run();
-        }).start();
-    }
-
-    /**
-     * websocket监听
-     */
-    private String webSocketListener() {
-        return "";
+    private void registerApp(Register register) throws IOException {
+        this.careHelperContext
+                .getThreadPoolExecutor()
+                .execute(() ->
+                        new HTTPConnection("/api/phone/register", register, "GET").run()
+                );
     }
 
     /**
@@ -134,13 +170,11 @@ public class CareHelperService extends BaseService implements Runnable {
      * 1.读取本地文件，并加入缓存对象。
      * 2.申请相关系统权限
      * 3.向服务端申请注册（使用设备码+手机号双因子进行注册）
-     *
-     * @throws Exception
      */
     public void init() throws Exception {
         // 初始化读取一轮APP文件
         this.fileService.readAllAppFiles();
-        AtomicBoolean atomicBoolean = new AtomicBoolean();
+        atomicBoolean = new AtomicBoolean();
         // 1.注册权限系统权限
         PermissionX.init(this.activity).permissions(PERMISSIONS).request((allGranted, grantedList, deniedList) ->
         {
@@ -153,31 +187,13 @@ public class CareHelperService extends BaseService implements Runnable {
             }
         });
 
-        // 注册App
-        String token = this.careHelperContext.getEnvironment().getToken(phoneService.getPhoneNumber());
         try {
-            registerApp(API.API_PHONE + "/register", new Register(token, "默认地址",
+            this.careHelperContext.setPhone(phoneService.getPhoneNumber());
+            registerApp(new Register(this.careHelperContext.getPhone(), "默认地址",
                     phoneService.getDeviceId(), 0, Operation.REGISTER));
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // 确定所有启动流程都完成之后再返回
-        int tryTimes = 0;
-        while (true) {
-            boolean isInitSuccess = atomicBoolean.get();
-            // 30s如果还没启动，就设置为失败。
-            if (tryTimes > 10) {
-                Log.e(TAG, "init failed!");
-                return;
-            }
-            if (isInitSuccess) {
-                Log.i(TAG, "init success!");
-                return;
-            }
-            tryTimes++;
-        }
-
     }
 }

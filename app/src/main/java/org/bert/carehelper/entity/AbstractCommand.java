@@ -11,11 +11,14 @@ public abstract class AbstractCommand {
 
     private int version;
 
+    private String token;
 
-    public AbstractCommand(Operation operation, Date createTime, int version) {
+
+    public AbstractCommand(Operation operation, Date createTime, int version, String token) {
         this.operation = operation;
         this.createTime = createTime;
         this.version = version;
+        this.token = token;
     }
 
     public Operation getOperation() {
@@ -40,5 +43,13 @@ public abstract class AbstractCommand {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

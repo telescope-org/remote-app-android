@@ -52,5 +52,6 @@ dependencies {
     implementation group: 'com.guolindev.permissionx', name: 'permissionx', version: '1.6.4'
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
     implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+    implementation group: 'com.auth0', name: 'java-jwt', version: '4.2.1'
 
 }

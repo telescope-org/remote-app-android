@@ -9,19 +9,25 @@ import android.os.Looper;
 import android.util.Log;
 
 
-
 import com.tencent.map.geolocation.TencentLocation;
 import com.tencent.map.geolocation.TencentLocationListener;
 import com.tencent.map.geolocation.TencentLocationManager;
 import com.tencent.map.geolocation.TencentLocationRequest;
 import com.tencent.map.geolocation.TencentPoi;
 
+import org.bert.carehelper.common.API;
+import org.bert.carehelper.common.CareHelperContext;
+import org.bert.carehelper.common.CareHelperEnvironment;
+import org.bert.carehelper.common.Operation;
 import org.bert.carehelper.entity.CommandResponse;
+import org.bert.carehelper.entity.Location;
+import org.bert.carehelper.http.HTTPConnection;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
-public class LocationService  implements TencentLocationListener, Service {
+public class LocationService implements TencentLocationListener, Service {
 
     private final String TAG = "LocationService";
 
@@ -33,15 +39,17 @@ public class LocationService  implements TencentLocationListener, Service {
 
     private boolean canGetLocation = false;
 
+    private CareHelperContext cContext = CareHelperContext.getInstance();
+
+
     public LocationService(Context context) {
         this.context = context;
         this.mLocationManager = TencentLocationManager.getInstance(this.context);
-
-        // 初始化地图SDK
         TencentLocationRequest request = TencentLocationRequest.create();
         request.setAllowGPS(true);
         request.setAllowDirection(true);
         request.setIndoorLocationMode(true);
+        request.setInterval(3000);
         this.mLocationManager.requestLocationUpdates(request, this, Looper.getMainLooper());
     }
 
@@ -60,6 +68,28 @@ public class LocationService  implements TencentLocationListener, Service {
         }
     }
 
+    public void syncLocation() {
+        if (this.canGetLocation()) {
+            Log.i(TAG, "get location success! location is " + this.location.getAddress() + ";");
+            Location location = new Location(
+                    this.location.getAddress(),
+                    Operation.UPDATE_LOCATION, new Date(),
+                    1,
+                    this.cContext.getEnvironment().getToken());
+            location.setPhone(this.cContext.getPhone());
+            this.cContext.getThreadPoolExecutor().execute(() -> new HTTPConnection(
+                    API.API_PHONE + "/" + "location",
+                    location
+                    , "GET").run());
+
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * 关闭地理位置获取
      */
@@ -72,8 +102,10 @@ public class LocationService  implements TencentLocationListener, Service {
     public void onLocationChanged(TencentLocation tencentLocation, int i, String s) {
         if ("OK".equals(s)) {
             this.location = tencentLocation;
-            this.setCanGetLocation(true);
-            Log.i(TAG, "get location success! location is " + this.location.getAddress() + ";");
+            if (this.location != null) {
+                this.setCanGetLocation(true);
+            }
+            this.syncLocation();
         } else {
             Log.e(TAG, "location failed");
         }
@@ -91,7 +123,7 @@ public class LocationService  implements TencentLocationListener, Service {
     }
 
     public boolean canGetLocation() {
-        return canGetLocation;
+        return canGetLocation && this.cContext.getEnvironment().getToken() != null;
     }
 
     public void setCanGetLocation(boolean canGetLocation) {

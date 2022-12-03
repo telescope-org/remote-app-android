@@ -7,15 +7,15 @@ import java.util.Date;
 
 public class Register extends AbstractCommand {
 
-    private String token;
+    private String phone;
 
     private String location;
 
     private String deviceId;
 
-    public Register(String token, String location, String deviceId, int version, Operation operation) {
-        super(operation, new Date(), version);
-        this.token = token;
+    public Register(String phone, String location, String deviceId, int version, Operation operation) {
+        super(operation, new Date(), version, "");
+        this.phone = phone;
         this.location = location;
         this.deviceId = deviceId;
     }
@@ -28,12 +28,12 @@ public class Register extends AbstractCommand {
         this.deviceId = deviceId;
     }
 
-    public String getToken() {
-        return token;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getLocation() {

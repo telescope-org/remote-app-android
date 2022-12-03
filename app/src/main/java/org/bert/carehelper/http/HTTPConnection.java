@@ -68,6 +68,25 @@ public class HTTPConnection<T> {
                 e.printStackTrace();
             }
         }
+
+        Class<?> superClass = clazz.getSuperclass();
+        Field[] superFields = superClass.getDeclaredFields();
+        for (int i = 0; i < superFields.length; i++) {
+            Field field = superFields[i];
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            Object value = null;
+            try {
+                value = field.get(data);
+                stringBuilder
+                        .append(fieldName)
+                        .append("=")
+                        .append(value)
+                        .append("&");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
         return stringBuilder.deleteCharAt(stringBuilder.length() - 1).toString();
     }
 
@@ -76,9 +95,8 @@ public class HTTPConnection<T> {
         Request request = null;
         // 处理GET请求
         if (method.toLowerCase(Locale.ROOT).equals("get")) {
-            Log.i("tag", "start request");
-            this.url = this.url + parseUrlParams(data); // url拼接完成
-            Log.i("tag", this.url);
+            this.url = this.url + "?" + parseUrlParams(data); // url拼接完成
+            Log.i("request", this.url);
 
             request = new Request.Builder()
                     .url(this.url)

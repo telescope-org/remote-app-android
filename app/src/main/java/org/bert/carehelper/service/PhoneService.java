@@ -57,7 +57,7 @@ public class PhoneService implements Service  {
     public String getPhoneNumber() {
         TelephonyManager telephonyManager = (TelephonyManager) this.context
                 .getSystemService(Context.TELEPHONY_SERVICE);
-        String PhoneNumber = null;
+        String phoneNumber = null;
         if (ActivityCompat.checkSelfPermission(this.context,
                 Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this.context,
@@ -66,9 +66,9 @@ public class PhoneService implements Service  {
                         != PackageManager.PERMISSION_GRANTED) {
             return "000-0000-0000";
         }
-        PhoneNumber = telephonyManager.getLine1Number();//返回设备的电话号码
-        Log.i(TAG, "Get Tel Numbers " + PhoneNumber);
-        return PhoneNumber;
+        phoneNumber = telephonyManager.getLine1Number();//返回设备的电话号码
+        Log.i(TAG, "Get Tel Numbers " + phoneNumber);
+        return phoneNumber;
     }
 
     public String getDeviceId() {
