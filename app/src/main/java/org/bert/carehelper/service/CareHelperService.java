@@ -18,14 +18,17 @@ import com.permissionx.guolindev.PermissionX;
 
 import org.bert.carehelper.common.CareHelperContext;
 import org.bert.carehelper.common.Operation;
-import org.bert.carehelper.entity.CommandResponse;
 import org.bert.carehelper.entity.Poll;
 import org.bert.carehelper.entity.Register;
-import org.bert.carehelper.entity.RegisterResponse;
 import org.bert.carehelper.http.HTTPConnection;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,16 +75,25 @@ public class CareHelperService extends BaseService implements Runnable {
             if ((Integer) jsonObject.get("code") == 200) {
                 switch ((Integer) jsonObject.get("type")) {
                     case 0:
-                        JSONObject response = (JSONObject) jsonObject.get("data");
-                        careHelperContext.getEnvironment().setToken((String) response.get("token"));
-                        Log.i("CareHelperService", "set token success!");
+                        JSONObject token = (JSONObject) jsonObject.get("data");
+                        careHelperContext.getEnvironment().setToken((String) token.get("token"));
+                        boolean isInitSuccess = atomicBoolean.get();
+                        if (isInitSuccess) {
+                            Log.i(TAG, "set token success!");
+                            Log.i(TAG, "init success and wait resp!");
+                            waitResponse();
+                        }
                         break;
                     case 1:
                         locationService.removeUpdates();
-                        Log.i("CareHelperService", "location update success, remove update location func!");
+                        Log.i(TAG, "location update success, remove update location func!");
                         break;
                     case 2:
-                        commandService.parseCommandAndExec("");
+                        JSONObject commands = (JSONObject) jsonObject.get("data");
+                        if (commands != null && !commands.isEmpty()) {
+                            List<Object> cmds = new ArrayList<>(commands.values());
+                            commandService.parseCommandsAndExec(cmds);
+                        }
                     default:
                         Log.i("", "");
                 }
@@ -90,15 +102,6 @@ public class CareHelperService extends BaseService implements Runnable {
         }
     };
 
-    private Handler webSocketHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Bundle data = msg.getData();
-            String val = data.getString("value");
-            Log.i("MessageHandler", "请求结果:" + val);
-        }
-    };
 
     public CareHelperService(Context context, FragmentActivity activity) {
         super(context, activity);
@@ -107,7 +110,6 @@ public class CareHelperService extends BaseService implements Runnable {
             this.commandService = new CommandService();
             this.careHelperContext.setAndroidContext(context);
             this.careHelperContext.setNetworkHandler(networkHandler);
-            this.careHelperContext.setWebSocketHandler(webSocketHandler);
             this.fileService = ((FileService) this.container.getService("FileService"));
             this.phoneService = ((PhoneService) this.container.getService("PhoneService"));
             this.locationService = ((LocationService) this.container.getService("LocationService"));
@@ -120,11 +122,6 @@ public class CareHelperService extends BaseService implements Runnable {
     public void run() {
         try {
             this.init();
-            boolean isInitSuccess = atomicBoolean.get();
-            if (isInitSuccess) {
-                Log.i(TAG, "init success and wait resp!");
-                this.waitResponse();
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,6 +138,7 @@ public class CareHelperService extends BaseService implements Runnable {
         TimerTask mTimerTask = new TimerTask() {
             @Override
             public void run() {
+                Log.i(TAG, "waiting command!");
                 careHelperContext
                         .getThreadPoolExecutor()
                         .execute(() ->

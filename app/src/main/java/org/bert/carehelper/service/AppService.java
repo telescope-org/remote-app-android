@@ -57,7 +57,7 @@ public class AppService implements Service {
 
 
     @Override
-    public CommandResponse doCommand(String content) {
+    public CommandResponse doCommand(String type) {
 
         return null;
     }

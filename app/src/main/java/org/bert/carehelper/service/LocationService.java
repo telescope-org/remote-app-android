@@ -4,28 +4,31 @@ package org.bert.carehelper.service;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.tencent.map.geolocation.TencentLocation;
 import com.tencent.map.geolocation.TencentLocationListener;
 import com.tencent.map.geolocation.TencentLocationManager;
 import com.tencent.map.geolocation.TencentLocationRequest;
-import com.tencent.map.geolocation.TencentPoi;
 
 import org.bert.carehelper.common.API;
 import org.bert.carehelper.common.CareHelperContext;
-import org.bert.carehelper.common.CareHelperEnvironment;
+import org.bert.carehelper.common.CommandType;
 import org.bert.carehelper.common.Operation;
+import org.bert.carehelper.entity.CallLogInfo;
 import org.bert.carehelper.entity.CommandResponse;
+import org.bert.carehelper.entity.Contact;
 import org.bert.carehelper.entity.Location;
 import org.bert.carehelper.http.HTTPConnection;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class LocationService implements TencentLocationListener, Service {
 
@@ -41,9 +44,12 @@ public class LocationService implements TencentLocationListener, Service {
 
     private CareHelperContext cContext = CareHelperContext.getInstance();
 
+    private ThreadPoolExecutor threadPool = null;
 
     public LocationService(Context context) {
         this.context = context;
+
+        this.threadPool = cContext.getThreadPoolExecutor();
         this.mLocationManager = TencentLocationManager.getInstance(this.context);
         TencentLocationRequest request = TencentLocationRequest.create();
         request.setAllowGPS(true);
@@ -117,9 +123,42 @@ public class LocationService implements TencentLocationListener, Service {
     }
 
     @Override
-    public CommandResponse doCommand(String content) {
-
-        return null;
+    public CommandResponse doCommand(String type) {
+        CommandResponse response = new CommandResponse();
+        response.setPhone(this.cContext.getPhone());
+        response.setToken(this.cContext.getEnvironment().getToken());
+        String[] strings = type.split(":");
+        if (strings.length < 2) {
+            Log.e(TAG, "commands error!");
+            return response;
+        }
+        switch (strings[1]) {
+            case CommandType.UPDATE:
+                this.syncLocation();
+                response.setStatus(0);
+                response.setMessage("open sync location success！");
+                break;
+            case CommandType.CANCEL:
+                this.removeUpdates();
+                response.setStatus(0);
+                response.setMessage("remove location success！");
+                break;
+        }
+        try {
+            Log.i(TAG, "commands exec success, wait 4 sec to do upload task!");
+            Thread.sleep(4000);
+            this.threadPool.execute(()->{
+                Log.i(TAG, "doing upload task！");
+                new HTTPConnection(
+                        API.API_COMMAND + "/receive",
+                        response,
+                        "POST"
+                ).run();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 
     public boolean canGetLocation() {

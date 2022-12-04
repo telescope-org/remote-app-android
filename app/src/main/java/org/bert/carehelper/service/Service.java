@@ -4,5 +4,5 @@ import org.bert.carehelper.entity.CommandResponse;
 
 public interface Service {
 
-    CommandResponse doCommand(String content);
+    CommandResponse doCommand(String type);
 }

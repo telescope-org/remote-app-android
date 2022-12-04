@@ -6,40 +6,43 @@ import java.util.Date;
 
 public class CommandResponse {
 
-    private Operation operation;
+    private String phone;
 
-    private Date createTime;
+    private String  token;
 
-    private int version;
+    private String message;
 
+    private Integer status;
 
-    public CommandResponse(Operation operation, Date createTime, int version) {
-        this.operation = operation;
-        this.createTime = createTime;
-        this.version = version;
+    public Integer getStatus() {
+        return status;
     }
 
-    public Operation getOperation() {
-        return operation;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
+    public String getPhone() {
+        return phone;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public String getToken() {
+        return token;
     }
 
-    public int getVersion() {
-        return version;
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

