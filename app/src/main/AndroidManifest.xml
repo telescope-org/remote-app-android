@@ -59,7 +59,7 @@
 
         <meta-data
             android:name="TencentMapSDK"
-            android:value=""/>
+            android:value="QGSBZ-VGL6P-6YSDM-LSOMA-BJ5PZ-4LFXV"/>
 
         <activity
             android:name=".MainActivity"

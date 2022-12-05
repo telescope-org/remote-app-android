@@ -20,7 +20,8 @@ public class BaseService {
                 .addService("PhoneService", new PhoneService(context))
                 .addService("FileService", new FileService(context, activity))
                 .addService("AppService", new AppService(context))
-                .addService("LocationService", new LocationService(context));
+                .addService("LocationService", new LocationService(context))
+                .addService("TargetService", new TargetService());
     }
 
     public String getTag(Class clazz) {

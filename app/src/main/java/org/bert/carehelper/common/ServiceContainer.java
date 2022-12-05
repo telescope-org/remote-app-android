@@ -36,6 +36,7 @@ public class ServiceContainer {
     public Service getService(String key) throws Exception {
         if (this.serviceMap == null) {
             throw new Exception("service map 未初始化！");
+            Lo
         }
         if (this.serviceMap.get(key) == null) {
             throw new Exception("service: " + key + " 未注入！");
